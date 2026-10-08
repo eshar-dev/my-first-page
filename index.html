@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Poof — Let your stress go in one minute</title>
+  <meta name="description" content="Poof is a tiny, whimsical stress-release ritual. Name what's weighing on you, breathe with a glowing orb, receive a warm affirmation, and watch your worries drift into the stars.">
+  <meta name="theme-color" content="#0d1030">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Poof">
+  <meta property="og:title" content="Poof — Let your stress go in one minute">
+  <meta property="og:description" content="Name it, breathe, and watch your worries drift into the stars. A tiny, whimsical stress-release ritual.">
+  <meta property="og:url" content="https://my-first-page.pages.dev/">
+  <meta property="og:image" content="https://my-first-page.pages.dev/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The word Poof glowing above a dreamy night sky full of stars.">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Poof — Let your stress go in one minute">
+  <meta name="twitter:description" content="Name it, breathe, and watch your worries drift into the stars.">
+  <meta name="twitter:image" content="https://my-first-page.pages.dev/og-image.png">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Sky layers -->
+  <div class="sky" aria-hidden="true">
+    <div class="nebula nebula--a"></div>
+    <div class="nebula nebula--b"></div>
+    <div class="nebula nebula--c"></div>
+    <div class="moon"></div>
+    <canvas id="stars"></canvas>
+    <div class="horizon"></div>
+  </div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Poof — start over">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 3.5c.9 5.6 3.4 8.1 9 9-5.6.9-8.1 3.4-9 9-.9-5.6-3.4-8.1-9-9 5.6-.9 8.1-3.4 9-9Z" fill="url(#bm)"/>
+          <circle cx="25.5" cy="23.5" r="2.2" fill="#ffc8e4"/>
+          <circle cx="7" cy="25" r="1.4" fill="#b9f0e4"/>
+          <defs><linearGradient id="bm" x1="7" y1="3" x2="25" y2="22"><stop stop-color="#d8ccff"/><stop offset="1" stop-color="#ffc8e4"/></linearGradient></defs>
+        </svg>
+        <span class="brand__name">poof</span>
+      </a>
+      <ol class="steps" aria-hidden="true">
+        <li></li><li></li><li></li><li></li><li></li>
+      </ol>
+      <p class="sr-only" id="step-label" aria-live="polite"></p>
+    </header>
+
+    <main class="stage" id="stage">
+
+      <!-- 1. Welcome -->
+      <section class="screen is-active" data-screen="welcome" aria-labelledby="welcome-title">
+        <div class="streak" id="streak">
+          <span class="streak__icon" aria-hidden="true">🌙</span>
+          <span class="streak__text" id="streak-text">Start your streak today</span>
+        </div>
+
+        <h1 class="title" id="welcome-title" tabindex="-1">What’s weighing on&nbsp;you?</h1>
+        <p class="lede">Name it, take three slow breaths, and let it drift away. It only takes a&nbsp;minute.</p>
+
+        <form class="worry" id="worry-form" novalidate>
+          <label class="sr-only" for="worry">Type what’s stressing you out</label>
+          <div class="field">
+            <textarea id="worry" name="worry" rows="3" maxlength="200"
+              placeholder="That deadline… the dishes… everything at once…"
+              autocomplete="off" spellcheck="true" aria-describedby="worry-hint"></textarea>
+            <span class="field__count" id="worry-count" aria-hidden="true">0 / 200</span>
+          </div>
+          <p class="hint" id="worry-hint">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 3 3.5v4c0 3.2 2.1 5.9 5 7 2.9-1.1 5-3.8 5-7v-4l-5-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            Your words stay on this device. Always.
+          </p>
+          <div class="actions">
+            <button class="btn btn--primary" type="submit" id="begin-btn">
+              <span>Let’s begin</span>
+              <svg class="btn__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4.5L15.5 10 11 14.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn--ghost" type="button" id="skip-btn">Skip — just breathe</button>
+          </div>
+        </form>
+
+        <div class="history" id="history" hidden>
+          <p class="history__label">Your recent moods</p>
+          <ul class="history__list" id="history-list"></ul>
+        </div>
+      </section>
+
+      <!-- 2. Breathe -->
+      <section class="screen" data-screen="breathe" aria-labelledby="breathe-title" inert>
+        <h2 class="sr-only" id="breathe-title" tabindex="-1">Breathe with the orb</h2>
+        <p class="eyebrow" id="breath-count">Three slow breaths</p>
+        <div class="orb-wrap">
+          <div class="orb" id="orb" data-phase="rest">
+            <div class="orb__halo"></div>
+            <div class="orb__ring"></div>
+            <div class="orb__core"></div>
+            <span class="orb__timer" id="orb-timer" aria-hidden="true"></span>
+          </div>
+        </div>
+        <p class="cue" id="cue" aria-live="polite">Get comfortable…</p>
+        <ol class="breath-dots" aria-hidden="true">
+          <li></li><li></li><li></li>
+        </ol>
+        <div class="actions actions--quiet">
+          <button class="btn btn--text" type="button" id="breathe-skip">Skip ahead</button>
+        </div>
+      </section>
+
+      <!-- 3. Affirmation -->
+      <section class="screen" data-screen="affirm" aria-labelledby="affirm-title" inert>
+        <h2 class="eyebrow eyebrow--sparkle" id="affirm-title" tabindex="-1">A little something for you</h2>
+        <blockquote class="affirmation" id="affirmation" aria-live="polite"></blockquote>
+        <div class="actions actions--reveal" id="affirm-actions">
+          <button class="btn btn--primary" type="button" id="affirm-next">
+            <span>Keep going</span>
+            <svg class="btn__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4.5L15.5 10 11 14.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn--ghost" type="button" id="affirm-another">Show me another</button>
+        </div>
+      </section>
+
+      <!-- 4. Release -->
+      <section class="screen" data-screen="release" aria-labelledby="release-title" inert>
+        <h2 class="title title--sm" id="release-title" tabindex="-1">Ready to let it go?</h2>
+        <div class="worry-card" id="worry-card">
+          <p class="worry-card__text" id="worry-text"></p>
+        </div>
+        <div class="release-zone" id="release-zone">
+          <button class="btn btn--hold" type="button" id="hold-btn" aria-describedby="hold-hint">
+            <span class="btn--hold__label">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5c.6 3.9 2.3 5.6 6.2 6.2-3.9.6-5.6 2.3-6.2 6.2-.6-3.9-2.3-5.6-6.2-6.2 3.9-.6 5.6-2.3 6.2-6.2Z" fill="currentColor"/></svg>
+              Release to the universe
+            </span>
+            <span class="btn--hold__fill" aria-hidden="true">
+              <span class="btn--hold__label">
+                <svg viewBox="0 0 20 20"><path d="M10 2.5c.6 3.9 2.3 5.6 6.2 6.2-3.9.6-5.6 2.3-6.2 6.2-.6-3.9-2.3-5.6-6.2-6.2 3.9-.6 5.6-2.3 6.2-6.2Z" fill="currentColor"/></svg>
+                Release to the universe
+              </span>
+            </span>
+          </button>
+          <p class="hint hint--center" id="hold-hint">Press and hold until it lets go</p>
+        </div>
+        <div class="released" id="released" hidden>
+          <p class="released__title">Poof.</p>
+          <p class="released__text">It’s out there among the stars now. You don’t have to hold it anymore.</p>
+          <div class="actions">
+            <button class="btn btn--primary" type="button" id="release-next">
+              <span>Check in with myself</span>
+              <svg class="btn__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4.5L15.5 10 11 14.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Check-in -->
+      <section class="screen" data-screen="checkin" aria-labelledby="checkin-title" inert>
+        <h2 class="title title--sm" id="checkin-title" tabindex="-1">How are you feeling now?</h2>
+        <div class="moods" id="moods" role="group" aria-labelledby="checkin-title"></div>
+        <div class="reply" id="reply" hidden>
+          <p class="reply__text" id="reply-text" aria-live="polite"></p>
+          <p class="reply__note" id="reply-note" hidden></p>
+          <p class="reply__streak" id="reply-streak"></p>
+          <div class="actions">
+            <button class="btn btn--primary" type="button" id="again-btn">
+              <svg class="btn__icon btn__icon--lead" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 6.5A6.5 6.5 0 1 0 16.5 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 2.5v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Go again</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Made with a deep breath ✦ Poof is not a substitute for professional care.</p>
+    </footer>
+  </div>
+
+  <noscript>
+    <p class="noscript">Poof needs JavaScript to make your worries disappear. Please enable it and try again.</p>
+  </noscript>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
